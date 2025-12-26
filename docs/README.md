@@ -1,43 +1,53 @@
-# 🏗️ Desafio Fullstack Integrado
-🚨 Instrução Importante (LEIA ANTES DE COMEÇAR)
-❌ NÃO faça fork deste repositório.
+# Projeto Benefícios
 
-Este repositório é fornecido como modelo/base. Para realizar o desafio, você deve:
-✅ Opção correta (obrigatória)
-  Clique em “Use this template” (se este repositório estiver marcado como Template)
-OU
-  Clone este repositório e crie um NOVO repositório público em sua conta GitHub.
-📌 O resultado deve ser um repositório próprio, independente deste.
+Solução em camadas com banco de dados, EJB, backend Spring Boot e frontend estático para gestão de benefícios e transferência de valores entre registros.
 
-## 🎯 Objetivo
-Criar solução completa em camadas (DB, EJB, Backend, Frontend), corrigindo bug em EJB e entregando aplicação funcional.
+## Arquitetura
+- `db/`: scripts `schema.sql` e `seed.sql` (referência)
+- `ejb-module/`: módulo EJB com validações de transferência, locking pessimista e rollback
+- `backend-module/`: API REST com CRUD, endpoint de transferência, Swagger/OpenAPI e testes
+- `frontend/`: página estática que consome a API
+- `.github/workflows/`: CI (build do backend)
 
-## 📦 Estrutura
-- db/: scripts schema e seed
-- ejb-module/: serviço EJB com bug a ser corrigido
-- backend-module/: backend Spring Boot
-- frontend/: app Angular
-- docs/: instruções e critérios
-- .github/workflows/: CI
+## Requisitos
+- Java 17
+- Maven 3.9+
 
-## ✅ Tarefas do candidato
-1. Executar db/schema.sql e db/seed.sql
-2. Corrigir bug no BeneficioEjbService
-3. Implementar backend CRUD + integração com EJB
-4. Desenvolver frontend Angular consumindo backend
-5. Implementar testes
-6. Documentar (Swagger, README)
-7. Submeter via fork + PR
+## Execução
+1) Backend
+```bash
+mvn -f backend-module clean spring-boot:run
+```
+API disponível em `http://localhost:8080`.
 
-## 🐞 Bug no EJB
-- Transferência não verifica saldo, não usa locking, pode gerar inconsistência
-- Espera-se correção com validações, rollback, locking/optimistic locking
+2) Swagger
+- UI: `http://localhost:8080/swagger-ui.html`
 
-## 📊 Critérios de avaliação
-- Arquitetura em camadas (20%)
-- Correção EJB (20%)
-- CRUD + Transferência (15%)
-- Qualidade de código (10%)
-- Testes (15%)
-- Documentação (10%)
-- Frontend (10%)
+3) Frontend
+- Abra `frontend/index.html` no navegador para listar, criar e transferir.
+
+## Endpoints principais
+- `GET /api/v1/beneficios`
+- `GET /api/v1/beneficios/{id}`
+- `POST /api/v1/beneficios`
+- `PUT /api/v1/beneficios/{id}`
+- `DELETE /api/v1/beneficios/{id}`
+- `POST /api/v1/beneficios/transfer` (body: `{ "fromId": 1, "toId": 2, "amount": 200.00 }`)
+
+## Banco de dados
+- H2 em memória aplicado automaticamente via `schema.sql` e `data.sql` no backend.
+- Os scripts equivalentes estão em `db/` para referência.
+
+## EJB
+- `BeneficioEjbService` protege a operação de transferência com validações, `PESSIMISTIC_WRITE` e exceção de negócio com rollback.
+- `Beneficio` possui `@Version` para controle de versão otimista.
+- Interface remota `BeneficioEjbServiceRemote` disponível para integração via contêiner Jakarta EE (WildFly/Payara).
+
+## Testes
+```bash
+mvn -f backend-module test
+```
+Inclui cenários de sucesso e de erro para transferência.
+
+## CI
+- GitHub Actions: `.github/workflows/ci.yml` (build do backend com JDK 17).
