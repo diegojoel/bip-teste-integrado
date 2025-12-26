@@ -61,8 +61,9 @@ class BeneficioServiceTest {
 		b.setAtivo(true);
 		b = service.create(b);
 
-		assertThrows(IllegalStateException.class,
-				() -> service.transfer(a.getId(), b.getId(), new BigDecimal("200.00")));
+		final Long aId = a.getId();
+		final Long bId = b.getId();
+		assertThrows(IllegalStateException.class, () -> service.transfer(aId, bId, new BigDecimal("200.00")));
 	}
 }
 
